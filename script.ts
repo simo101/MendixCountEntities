@@ -9,10 +9,10 @@ import { ModelSdkClient, IModel, projects, domainmodels, microflows, pages, navi
 import when = require('when');
 
 
-const username = "simon.black@mendix.com";
-const apikey = "ba47d0a1-9991-45ee-a14d-d0c1b73d5279";
-const projectId = "2c73da5b-ccc6-44a2-99ea-be4e87bb5287";
-const projectName = "Connected Truck SE Demo";
+const username = "{{UserName}}";
+const apikey = "{{APIKey}}";
+const projectId = "{{ProjectID}}";
+const projectName = "{{ProjectName}}";
 const revNo = -1; // -1 for latest
 const branchName = null // null for mainline
 const wc = null;
@@ -55,6 +55,7 @@ client.platform().createOnlineWorkingCopy(project, new Revision(revNo, new Branc
                 pObj.addLineBreak();          
 
                 pObj.addText(`Pages:`, { bold: true, underline: false, font_size: 16 });
+                pObj.addLineBreak(); 
                 totalPages.forEach(pg =>{
                     pObj.addText(pg.name, { bold: false, underline: false, font_size: 15 });
                     pObj.addLineBreak();
@@ -69,6 +70,7 @@ client.platform().createOnlineWorkingCopy(project, new Revision(revNo, new Branc
                 pObj.addLineBreak();       
 
                 pObj.addText(`Microflows:`, { bold: true, underline: false, font_size: 16 });
+                pObj.addLineBreak(); 
                 microflows.forEach(mf =>{
                     pObj.addText(mf.name, { bold: false, underline: false, font_size: 15 });
                     pObj.addLineBreak();
