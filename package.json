@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/simo101/MendixCountEntities",
   "dependencies": {
-    "mendixmodelsdk": "^2.7.0",
+    "mendixmodelsdk": "^2.8.0",
     "mendixplatformsdk": "^2.0.0",
     "when": "^3.7.7",
     "node": "^0.0.0",
