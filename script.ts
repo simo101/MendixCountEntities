@@ -9,8 +9,8 @@ import { ModelSdkClient, IModel, projects, domainmodels, microflows, pages, navi
 import when = require('when');
 
 
-const username = "{{UserName}}";
-const apikey = "{{APIKey}}";
+const username = "{{USERNAME}}";
+const apikey = "{{apikey}}";
 const projectId = "{{ProjectID}}";
 const projectName = "{{ProjectName}}";
 const revNo = -1; // -1 for latest
@@ -29,58 +29,77 @@ const project = new Project(client, projectId, projectName);
 client.platform().createOnlineWorkingCopy(project, new Revision(revNo, new Branch(project, branchName)))
     .then(workingCopy => {
         pObj = docx.createP();
-        workingCopy.model().allDomainModels().forEach(domainModel=>{
-                pObj.addText(domainModel.moduleName, { bold: true, underline: true, font_size: 20 });
+        workingCopy.model().allDomainModels().forEach(domainModel => {
+            pObj.addText(domainModel.moduleName, { bold: true, underline: true, font_size: 20 });
+            pObj.addLineBreak();
+
+
+            pObj.addText(`Total Entities: ${domainModel.entities.length}`, { bold: true, underline: false, font_size: 16 });
+            pObj.addLineBreak();
+
+            pObj.addText(`Entity Names:`, { bold: true, underline: false, font_size: 15 });
+            pObj.addLineBreak();
+
+            domainModel.entities.forEach(entity => {
+                pObj.addText(entity.name, { bold: true, underline: false, font_size: 15 });
                 pObj.addLineBreak();
-
-
-                pObj.addText(`Total Entities: ${domainModel.entities.length}`, { bold: true, underline: false, font_size: 18 });
-                pObj.addLineBreak();              
-
-                pObj.addText(`Entity Names:`, { bold: true, underline: false, font_size: 16 });
-                pObj.addLineBreak();              
-                
-                domainModel.entities.forEach(entity =>{
-                    pObj.addText(entity.name, { bold: false, underline: false, font_size: 15 });
+               
+                pObj.addText(`Attributes: ${entity.attributes.length}`, { bold: true, underline: false, font_size: 13 });
+                pObj.addLineBreak();
+                entity.attributes.forEach(attr => {
+                    pObj.addText(`${attr.name}`, { bold: false, underline: false, font_size: 10 });
                     pObj.addLineBreak();
                 });
-                pObj.addLineBreak(); 
-                                
-                                
-                var totalPages = workingCopy.model().allPages().filter(page =>{
-                    return page.moduleName === domainModel.moduleName;
+                pObj.addLineBreak();
+                var associations = domainModel.associations.filter(assoc => {
+                    return assoc.parent === entity;
                 });
-
-                pObj.addText(`Total Pages: ${totalPages.length}`, { bold: true, underline: false, font_size: 18 });
-                pObj.addLineBreak();          
-
-                pObj.addText(`Pages:`, { bold: true, underline: false, font_size: 16 });
-                pObj.addLineBreak(); 
-                totalPages.forEach(pg =>{
-                    pObj.addText(pg.name, { bold: false, underline: false, font_size: 15 });
-                    pObj.addLineBreak();
-                });
+                pObj.addText(`Associations:  ${associations.length}`, { bold: true, underline: false, font_size: 13 });
 
                 pObj.addLineBreak();
-                var microflows = workingCopy.model().allMicroflows().filter(microflow =>{
-                    return microflow.moduleName === domainModel.moduleName;
-                });        
-
-                pObj.addText(`Total Microflows: ${microflows.length}`, { bold: true, underline: false, font_size: 18 });
-                pObj.addLineBreak();       
-
-                pObj.addText(`Microflows:`, { bold: true, underline: false, font_size: 16 });
-                pObj.addLineBreak(); 
-                microflows.forEach(mf =>{
-                    pObj.addText(mf.name, { bold: false, underline: false, font_size: 15 });
+                associations.forEach(association => {
+                    pObj.addText(`${association.name}`, { bold: false, underline: false, font_size: 10 });
                     pObj.addLineBreak();
                 });
+                 pObj.addLineBreak();
+            });
+            pObj.addLineBreak();
 
 
-                return;
+            var totalPages = workingCopy.model().allPages().filter(page => {
+                return page.moduleName === domainModel.moduleName;
+            });
+
+            pObj.addText(`Total Pages: ${totalPages.length}`, { bold: true, underline: false, font_size: 16 });
+            pObj.addLineBreak();
+
+            pObj.addText(`Pages:`, { bold: true, underline: false, font_size: 13 });
+            pObj.addLineBreak();
+            totalPages.forEach(pg => {
+                pObj.addText(pg.name, { bold: false, underline: false, font_size: 10 });
+                pObj.addLineBreak();
+            });
+
+            pObj.addLineBreak();
+            var microflows = workingCopy.model().allMicroflows().filter(microflow => {
+                return microflow.moduleName === domainModel.moduleName;
+            });
+
+            pObj.addText(`Total Microflows: ${microflows.length}`, { bold: true, underline: false, font_size: 16 });
+            pObj.addLineBreak();
+
+            pObj.addText(`Microflows:`, { bold: true, underline: false, font_size: 13 });
+            pObj.addLineBreak();
+            microflows.forEach(mf => {
+                pObj.addText(mf.name, { bold: false, underline: false, font_size: 10 });
+                pObj.addLineBreak();
+            });
+            pObj.addLineBreak();
+
+            return;
         });
         return;
-        })
+    })
     .done(
     () => {
         var out = fs.createWriteStream('MendixCountDocument.docx');
