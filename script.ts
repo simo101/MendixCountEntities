@@ -9,9 +9,9 @@ import { ModelSdkClient, IModel, projects, domainmodels, microflows, pages, navi
 import when = require('when');
 
 
-const username = "{{USERNAME}}";
-const apikey = "{{apikey}}";
-const projectId = "{{ProjectID}}";
+const username = "{{Username}}";
+const apikey = "{{APIKEY}}";
+const projectId = "{{ProjecID}}";
 const projectName = "{{ProjectName}}";
 const revNo = -1; // -1 for latest
 const branchName = null // null for mainline
@@ -21,6 +21,9 @@ var officegen = require('officegen');
 var docx = officegen('docx');
 var fs = require('fs');
 var pObj;
+var totalNumberPages = 0;
+var totalNumberMicroflows=0;
+var totalNumberEntities = 0;
 /*
  * PROJECT TO ANALYZE
  */
@@ -29,80 +32,49 @@ const project = new Project(client, projectId, projectName);
 client.platform().createOnlineWorkingCopy(project, new Revision(revNo, new Branch(project, branchName)))
     .then(workingCopy => {
         pObj = docx.createP();
+        pObj.addText(projectName, { bold: true, underline: true, font_size: 20 });
+        pObj.addLineBreak();
+        pObj.addLineBreak();
         workingCopy.model().allDomainModels().forEach(domainModel => {
-            pObj.addText(domainModel.moduleName, { bold: true, underline: true, font_size: 20 });
+            pObj.addText(getModule(domainModel).name, { bold: true, underline: true, font_size: 18 });
             pObj.addLineBreak();
 
-
-            pObj.addText(`Total Entities: ${domainModel.entities.length}`, { bold: true, underline: false, font_size: 16 });
+            totalNumberEntities+= domainModel.entities.length;
+            pObj.addText(`Total Entities: ${domainModel.entities.length}`, { bold: false, underline: false, font_size: 15 });
             pObj.addLineBreak();
-
-            pObj.addText(`Entity Names:`, { bold: true, underline: false, font_size: 15 });
-            pObj.addLineBreak();
-
-            domainModel.entities.forEach(entity => {
-                pObj.addText(entity.name, { bold: true, underline: false, font_size: 15 });
-                pObj.addLineBreak();
-               
-                pObj.addText(`Attributes: ${entity.attributes.length}`, { bold: true, underline: false, font_size: 13 });
-                pObj.addLineBreak();
-                entity.attributes.forEach(attr => {
-                    pObj.addText(`${attr.name}`, { bold: false, underline: false, font_size: 10 });
-                    pObj.addLineBreak();
-                });
-                pObj.addLineBreak();
-                var associations = domainModel.associations.filter(assoc => {
-                    return assoc.parent === entity;
-                });
-                pObj.addText(`Associations:  ${associations.length}`, { bold: true, underline: false, font_size: 13 });
-
-                pObj.addLineBreak();
-                associations.forEach(association => {
-                    pObj.addText(`${association.name}`, { bold: false, underline: false, font_size: 10 });
-                    pObj.addLineBreak();
-                });
-                 pObj.addLineBreak();
-            });
-            pObj.addLineBreak();
-
 
             var totalPages = workingCopy.model().allPages().filter(page => {
-                return page.moduleName === domainModel.moduleName;
+                return getModule(page).name === getModule(domainModel).name;
             });
-
-            pObj.addText(`Total Pages: ${totalPages.length}`, { bold: true, underline: false, font_size: 16 });
-            pObj.addLineBreak();
-
-            pObj.addText(`Pages:`, { bold: true, underline: false, font_size: 13 });
-            pObj.addLineBreak();
-            totalPages.forEach(pg => {
-                pObj.addText(pg.name, { bold: false, underline: false, font_size: 10 });
-                pObj.addLineBreak();
-            });
+            totalNumberPages+= totalPages.length;
+            pObj.addText(`Total Pages: ${totalPages.length}`, { bold: false, underline: false, font_size: 15 });
 
             pObj.addLineBreak();
             var microflows = workingCopy.model().allMicroflows().filter(microflow => {
-                return microflow.moduleName === domainModel.moduleName;
+                return getModule(microflow).name === getModule(domainModel).name;
             });
-
-            pObj.addText(`Total Microflows: ${microflows.length}`, { bold: true, underline: false, font_size: 16 });
+            totalNumberMicroflows+= microflows.length;
+            pObj.addText(`Total Microflows: ${microflows.length}`, { bold: false, underline: false, font_size: 15 });
             pObj.addLineBreak();
-
-            pObj.addText(`Microflows:`, { bold: true, underline: false, font_size: 13 });
             pObj.addLineBreak();
-            microflows.forEach(mf => {
-                pObj.addText(mf.name, { bold: false, underline: false, font_size: 10 });
-                pObj.addLineBreak();
-            });
-            pObj.addLineBreak();
-
+            
             return;
         });
+        pObj.addText(`Total Stats`, { bold: true, underline: true, font_size: 18 });
+        pObj.addLineBreak();
+        pObj.addText(`Total Application Objects: ${totalNumberPages+totalNumberEntities+totalNumberMicroflows}`, { bold: false, underline: false, font_size: 15 });
+        pObj.addLineBreak();
+        pObj.addText(`Total Pages: ${totalNumberPages}`, { bold: false, underline: false, font_size: 15 });
+        pObj.addLineBreak();
+        pObj.addText(`Total Microflows: ${totalNumberMicroflows}`, { bold: false, underline: false, font_size: 15 });
+        pObj.addLineBreak();
+        pObj.addText(`Total Entities: ${totalNumberEntities}`, { bold: false, underline: false, font_size: 15 });
+        
         return;
     })
     .done(
     () => {
-        var out = fs.createWriteStream('MendixCountDocument.docx');
+        var out = fs.createWriteStream(`${projectName} Application Counts.docx`);
         docx.generate(out);
         out.on('close', function () {
             console.log('Finished to creating Document');
@@ -113,3 +85,13 @@ client.platform().createOnlineWorkingCopy(project, new Revision(revNo, new Branc
         console.dir(error);
     }
     );
+    export function getModule(element: IStructure): projects.Module {
+        let current = element.unit;
+        while (current) {
+            if (current instanceof projects.Module) {
+                return current;
+            }
+            current = current.container;
+        }
+        return null;
+    }
