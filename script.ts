@@ -1,8 +1,8 @@
 import { MendixPlatformClient} from "mendixplatformsdk";
 import { ModelSdkClient, IModel, projects, domainmodels, microflows, pages, navigation, texts, security, IStructure, menus } from "mendixmodelsdk";
 
-const appID = "{{appID}}";
-const projectName = "{{ProjectName}}";
+const appID = "fcc8a372-b054-4cb8-876c-ba4beeb7b41b";
+const projectName = "Mendix Experience";
 const revNo = -1; // -1 for latest
 const branchName = null // null for mainline
 const wc = null;
@@ -87,3 +87,4 @@ async function main() {
         }
         return "";
     }
+main().catch(console.error);
