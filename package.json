@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/simo101/MendixSecurityAudit.git"
+    "url": "https://github.com/simo101/MendixCountEntities.git"
   },
   "keywords": [],
   "author": "",
@@ -18,12 +18,9 @@
   },
   "homepage": "https://github.com/simo101/MendixCountEntities",
   "dependencies": {
-    "mendixmodelsdk": "^4.3.0",
-    "mendixplatformsdk": "^4.0.0",
-    "when": "^3.7.8",
-    "@types/when": "2.4.29",
-    "node": "^0.0.0",
-    "fs": "^0.0.2",
-    "officegen": "0.4.0"
+    "mendixmodelsdk": "4.85.0",
+    "mendixplatformsdk": "^5.1.2",
+    "fs": "^0.0.1-security",
+    "officegen": "0.6.5"
   }
 }
