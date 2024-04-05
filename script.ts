@@ -3,9 +3,7 @@ import { ModelSdkClient, IModel, projects, domainmodels, microflows, pages, navi
 
 const appID = "{{appID}}";
 const projectName = "{{projectName}}";
-const revNo = -1; // -1 for latest
 const branchName = null // null for mainline
-const wc = null;
 const client = new MendixPlatformClient();
 var officegen = require('officegen');
 var docx = officegen('docx');
